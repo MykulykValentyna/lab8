@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import { inventoryService } from '../services/inventoryApi';
 
 const InventoryContext = createContext();
@@ -10,13 +10,12 @@ export const InventoryProvider = ({ children }) => {
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
-    setError(null);
     try {
       const response = await inventoryService.getAll();
       setItems(response.data);
+      setError(null);
     } catch (err) {
-      setError('Не вдалося завантажити список товарів');
-      console.error(err);
+      setError('Не вдалося завантажити дані зі складу.');
     } finally {
       setLoading(false);
     }
@@ -25,23 +24,14 @@ export const InventoryProvider = ({ children }) => {
   const removeItem = async (id) => {
     try {
       await inventoryService.delete(id);
-      setItems((prev) => prev.filter(item => item.id !== id));
-      return { success: true };
+      setItems(prev => prev.filter(item => item.id !== id));
     } catch (err) {
-      console.error(err);
-      return { success: false, error: err.message };
+      alert("Помилка при видаленні");
     }
   };
 
   return (
-    <InventoryContext.Provider value={{ 
-      items, 
-      loading, 
-      error, 
-      fetchItems, 
-      removeItem,
-      setItems 
-    }}>
+    <InventoryContext.Provider value={{ items, loading, error, fetchItems, removeItem }}>
       {children}
     </InventoryContext.Provider>
   );
